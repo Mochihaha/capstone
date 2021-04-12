@@ -16,3 +16,11 @@ tensorflow==2.4.0
 torch==1.7.1
 transformers==4.2.1
 ipywidgets==7.6.3
+nltk==3.5
+textblob==0.15.3
+pdfplumber==0.5.25
+fuzzywuzzy==0.18.0
+textacy==0.10.1
+tqdm==4.59.0
+
+
