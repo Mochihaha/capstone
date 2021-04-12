@@ -68,7 +68,7 @@ class RobustService(object):
             print(f"Starting server with command: {' '.join(self.start_cmd)}")
             cwd = os.getcwd()
             os.chdir(self.install_dir)
-            self.server = subprocess.Popen(self.start_cmd, shell=True, stderr=stderr, stdout=stderr)
+            self.server = subprocess.Popen(self.start_cmd, shell=False, stderr=stderr, stdout=stderr)
             #self.execute(self.start_cmd)
             os.chdir(cwd)
             
@@ -236,14 +236,14 @@ class OpenIEClient(RobustService):
     
     def extract(self, text):
         self.ensure_alive()
-        print("server ensured alive")
+        #print("server ensured alive")
         try:
-            print(f"attempting to extract: {text}")
+            #print(f"attempting to extract: {text}")
             data = self.extractor.extract(text)
-            print("extracted")
+            #print("extracted")
             return data
         except requests.HTTPError as e:
-            print("error")
+            #print("error")
             raise UnknownException()
 
 class OpenIE5:
@@ -262,19 +262,19 @@ class OpenIE5:
             assert isinstance(properties, dict)
 
         requests.get(self.server_url)
-        print("url get. encoding")
+        #print("url get. encoding")
         # try:
         #     requests.get(self.server_url)
         # except requests.exceptions.ConnectionError:
         #     raise Exception('Check whether you have started the OpenIE5 server')
 
         data = text.encode('utf-8')
-        print("text encoded, sending post req")
+        #print("text encoded, sending post req")
 
         r = requests.post(
             self.server_url + self.extract_context, params={
                 'properties': str(properties)
             }, data=data, headers={'Connection': 'close'})
-        print("reply received")
+        #print("reply received")
         
         return json.loads(r.text)
