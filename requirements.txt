@@ -22,5 +22,5 @@ pdfplumber==0.5.25
 fuzzywuzzy==0.18.0
 textacy==0.10.1
 tqdm==4.59.0
-
+spacy==2.3.5
 
