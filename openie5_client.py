@@ -82,6 +82,7 @@ class RobustService(object):
 
     def __enter__(self):
         self.start()
+        time.sleep(120)
         return self
 
     def __exit__(self, _, __, ___):
