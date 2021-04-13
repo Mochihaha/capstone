@@ -40,6 +40,9 @@ class RobustService(object):
         self.be_quiet = be_quiet
         
     def is_alive(self):
+        """
+        to-do: Check if server is ready without needing to ping. (If possible)
+        """
         try:
             # placeholder method to check if server is up
             self.extractor.extract('this is a ping')
@@ -47,21 +50,9 @@ class RobustService(object):
         except requests.exceptions.ConnectionError as e:
             raise ShouldRetryException(e)
 
-    def execute(self, command):
-        self.server = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-        # Poll process for new output until finished
-        while True:
-            nextline = self.server.stdout.readline()
-            if nextline == f'Server started at port {self.port} ...\r\n'.encode('utf-8'):
-                break
-            sys.stdout.write(nextline)
-            sys.stdout.flush()  
-
     def start(self):
         if self.start_cmd:
             if self.be_quiet:
-                # Issue #26: subprocess.DEVNULL isn't supported in python 2.7.
                 stderr = open(os.devnull, 'w')
             else:
                 stderr = self.stderr
@@ -69,7 +60,6 @@ class RobustService(object):
             cwd = os.getcwd()
             os.chdir(self.install_dir)
             self.server = subprocess.Popen(self.start_cmd, shell=False, stderr=stderr, stdout=stderr)
-            #self.execute(self.start_cmd)
             os.chdir(cwd)
             
 
@@ -237,14 +227,10 @@ class OpenIEClient(RobustService):
     
     def extract(self, text):
         self.ensure_alive()
-        #print("server ensured alive")
         try:
-            #print(f"attempting to extract: {text}")
             data = self.extractor.extract(text)
-            #print("extracted")
             return data
         except requests.HTTPError as e:
-            #print("error")
             raise UnknownException()
 
 class OpenIE5:
@@ -263,19 +249,11 @@ class OpenIE5:
             assert isinstance(properties, dict)
 
         requests.get(self.server_url)
-        #print("url get. encoding")
-        # try:
-        #     requests.get(self.server_url)
-        # except requests.exceptions.ConnectionError:
-        #     raise Exception('Check whether you have started the OpenIE5 server')
 
         data = text.encode('utf-8')
-        #print("text encoded, sending post req")
 
         r = requests.post(
             self.server_url + self.extract_context, params={
                 'properties': str(properties)
             }, data=data, headers={'Connection': 'close'})
-        #print("reply received")
-        
         return json.loads(r.text)
